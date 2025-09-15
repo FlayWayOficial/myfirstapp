@@ -75,3 +75,75 @@ create table pacote_passagem (
     primary key (pacote_id, passagem_id)
 );
 
+create table pagamento (
+    pagamento_id bigserial primary key,
+    pacote_id integer not null references pacote(pacote_id),
+    valor decimal not null,
+    forma_pagamento varchar(50) not null,
+    data_pagamento timestamp not null,
+    numero_parcelas integer default 1 check (numero_parcelas >= 1)
+);
+
+create table funcionario (
+    funcionario_id bigserial primary key,
+    nome varchar(255) not null,
+    cpf char(14) unique not null,
+    email varchar(255) unique not null,
+    telefone varchar(11),
+    cargo varchar(100) not null,
+    constraint cpf_func check (char_length(cpf) = 14),
+    constraint telefone_func check (char_length(telefone) = 11)
+);
+
+create table venda (
+    venda_id bigserial primary key,
+    data_venda timestamp not null default now(),
+    pacote_id integer not null references pacote(pacote_id),
+    cliente_id integer not null references cliente(cliente_id),
+    funcionario_id integer not null references funcionario(funcionario_id)
+);
+
+create table transporte (
+    transporte_id bigserial primary key,
+    tipo varchar(50) not null,
+    companhia varchar(100),
+    origem_id integer not null references cidade(cidade_id),
+    destino_id integer not null references cidade(cidade_id),
+    data_partida timestamp not null,
+    data_chegada timestamp not null,
+    constraint origem_destino_diferentes check (origem_id <> destino_id)
+);
+
+create table pacote_transporte (
+    pacote_id integer not null references pacote(pacote_id),
+    transporte_id integer not null references transporte(transporte_id),
+    primary key (pacote_id, transporte_id)
+);
+
+create table seguro (
+    seguro_id bigserial primary key,
+    cobertura varchar(255) not null,
+    preco decimal not null
+);
+
+create table pacote_seguro (
+    pacote_id integer not null references pacote(pacote_id),
+    seguro_id integer not null references seguro(seguro_id),
+    primary key (pacote_id, seguro_id)
+);
+
+create table atividade (
+    atividade_id bigserial primary key,
+    nome varchar(255) not null,
+    descricao text,
+    preco decimal not null,
+    cidade_id integer not null references cidade(cidade_id)
+);
+
+create table pacote_atividade (
+    pacote_id integer not null references pacote(pacote_id),
+    atividade_id integer not null references atividade(atividade_id),
+    primary key (pacote_id, atividade_id)
+);
+
+
